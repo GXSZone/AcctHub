@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+set -eu
+
+# 校验 Git 提交信息是否符合 Conventional Commits + 简体中文规范
+node scripts/check-commit-msg.mjs "$1"

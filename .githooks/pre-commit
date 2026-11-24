@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# 提交前快速质量门禁（包含格式校验、TS 类型检查、架构守卫与单测/集成测试）
+pnpm run lint
+pnpm run typecheck
+pnpm run arch:check
+pnpm run test

@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "migrations": [
+    {
+      "name": "0000_accthub_baseline.sql",
+      "sha256": "50e2122cb96c76f399fdd2cee0b8907ea978c29fc63f88f3e4fa5483c82b9ddb"
+    }
+  ]
+}

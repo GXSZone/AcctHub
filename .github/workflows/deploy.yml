@@ -1,0 +1,60 @@
+name: AcctHub 部署
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 目标部署环境
+        type: choice
+        options: [staging, production]
+        default: staging
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: 构建并部署至 Cloudflare Workers + D1
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ inputs.environment || 'production' }}
+    concurrency:
+      group: deploy-${{ inputs.environment || 'production' }}
+      cancel-in-progress: false
+    env:
+      CI: "true"
+      WRANGLER_SEND_METRICS: "false"
+      TARGET_ENVIRONMENT: ${{ inputs.environment || 'production' }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+      - name: 运行全量质量门禁
+        run: |
+          pnpm run check
+          pnpm exec vitest run --config vitest.d1.config.ts
+      - name: 上线前配置与 Secret 自检
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN"
+          test -n "$CLOUDFLARE_ACCOUNT_ID"
+          pnpm run deploy:preflight -- --env "$TARGET_ENVIRONMENT" --check-remote-secrets
+      - name: 应用并核对远端 D1 迁移
+        run: node scripts/migrate-db.mjs --remote --env "$TARGET_ENVIRONMENT"
+      - name: 部署 Cloudflare Worker 与静态资产
+        run: pnpm exec wrangler deploy --env "$TARGET_ENVIRONMENT"
+      - name: 线上健康与沙盒隔离探活
+        if: ${{ vars.PUBLIC_SITE_URL != '' }}
+        env:
+          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+        run: node scripts/release-health.mjs --env "$TARGET_ENVIRONMENT" --url "$PUBLIC_SITE_URL"

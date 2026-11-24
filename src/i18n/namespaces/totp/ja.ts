@@ -1,0 +1,57 @@
+import type { TotpDict } from './zh-CN';
+
+/** 2FA 認証コード生成・保管庫（日本語） */
+export const totpJa: TotpDict = {
+  detectedLinesToast: '{count} 行を検出しました。一括インポートを開きます',
+  clipboardEmptyToast: 'クリップボードが空です',
+  pasteHotkeyToast: 'Ctrl+V / ⌘V でシークレットを貼り付けてください',
+  invalidSecretErr: 'シークレット形式が無効です',
+  minLengthSecretErr: '8文字以上の有効な Base32 シークレット（A-Z、2-7）を入力してください',
+  defaultAccountIssuer: 'AI アカウント',
+  savedCloudToast: 'クラウド保管庫へ暗号化保存しました（他端末でも同期可能）',
+  savedLocalToast: 'このブラウザに保存しました。ログインしてもローカル項目はここに残ります。',
+  saveFailedErr: '保存に失敗しました',
+  localVaultFullErr:
+    'このブラウザには {limit} 件まで保存できます。既存の項目を削除してから再試行してください。',
+  batchLimitErr: '一度にインポートできるのは {limit} 件までです。分けて再試行してください。',
+  batchEmptyErr: '有効な Base32 シークレットまたは otpauth:// URI が検出されませんでした',
+  batchCloudSuccessToast: '{count} 件のシークレットをクラウドへ暗号化インポートしました！',
+  batchLocalSuccessToast: '{count} 件のシークレットをブラウザにインポートしました！',
+  focusPromptToast: '先に左側へシークレットを貼り付けてから保存してください',
+  importFallbackSingle: 'インポート済',
+  importFallbackBatch: '一括インポート',
+
+  clearTooltip: 'クリア',
+  copySecretTooltip: 'シークレットをコピー',
+  pasteClipboardTooltip: 'クリップボードから貼付',
+  validSecretHint: '有効な Base32 シークレット · {len} 文字',
+
+  zoomQrAria: '2FA QRコードを拡大',
+  qrAlt: '2FA QRコード',
+  zoomQrTooltip: 'QRコードを拡大',
+  qrScanTitle: 'スキャンして認証アプリに追加',
+  qrScanDesc: 'Google Authenticator などの認証アプリで読み取れます。',
+  copiedUriBtn: 'リンクをコピー済',
+  copyUriBtn: 'リンクをコピー',
+  downloadBtn: 'ダウンロード',
+  issuerLabel: 'サービス名',
+  issuerPh: '例：Google / Claude',
+  accountLabel: 'アカウント',
+  accountPh: '例：name@gmail.com',
+
+  fallbackItemIssuer: 'アカウントキー',
+  deleteTooltip: '削除',
+
+  modalZoomAria: 'QRコードを拡大',
+  modalZoomTitle: 'スキャンして認証アプリに追加',
+  modalZoomAlt: '拡大された 2FA QRコード',
+  modalBatchAria: '2FA シークレットを一括インポート',
+  modalBatchTitle: '2FA シークレットを一括インポート',
+  modalBatchDescPrefix: '1行に1件。対応形式：',
+  modalBatchDescFormat1: '`otpauth://totp/...`',
+  modalBatchDescMid: '、',
+  modalBatchDescFormat2: '`サービス名----メール----Base32キー`',
+  modalBatchDescSuffix: '、または Base32 キー単体。',
+  cancelBtn: 'キャンセル',
+  modalBatchSubmitBtn: '解析してインポート',
+};

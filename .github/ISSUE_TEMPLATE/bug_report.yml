@@ -1,0 +1,42 @@
+name: 问题反馈 (Bug Report)
+description: 上报功能缺陷、接口异常或安全边界之外的 Bug
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢帮助完善 AcctHub！若是**安全漏洞（资金越权、回调绕过、凭证泄露等）**，请勿在公开 Issue 提交细节，改为通过仓库安全策略里的私密途径反馈。
+  - type: textarea
+    id: description
+    attributes:
+      label: 问题描述
+      description: 清晰描述发生了什么异常，以及你预期应该出现的结果。
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 复现步骤
+      description: 请列出最小复现步骤、环境信息或对应接口请求/返回。
+      placeholder: |
+        1. 启动本地服务 pnpm run dev
+        2. 进入 ...
+        3. 执行 ... 后出现报错
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: 运行环境
+      options:
+        - 本地开发沙盒 (development)
+        - Cloudflare Staging
+        - Cloudflare Production
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 控制台 / 测试报错日志（请确认已移除任何密钥或敏感信息）
+      render: text

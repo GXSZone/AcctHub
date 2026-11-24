@@ -1,0 +1,71 @@
+name = "accthub"
+main = "worker/index.ts"
+compatibility_date = "2026-03-01"
+compatibility_flags = ["nodejs_compat"]
+upload_source_maps = false
+
+[observability]
+enabled = true
+
+[observability.traces]
+enabled = true
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+[assets]
+directory = "./dist/client"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+
+# 默认开发环境。需要沙盒时通过 pnpm dev 运行。
+[[d1_databases]]
+binding = "DB"
+database_name = "accthub-db"
+database_id = "local-accthub-db"
+migrations_dir = "migrations"
+
+[vars]
+APP_ENV = "development"
+ADMIN_SECRET = "accthub-admin"
+JWT_SECRET = "accthub-edge-hmac-secret-change-in-prod"
+
+# =========================================================================
+# 预发环境 (Staging) — 由发布工作流上传已核验的构建
+# 安全红线（S3）：staging 同样禁止回退默认开发密钥且默认关闭沙盒。
+# 发布前必须执行：
+#   wrangler secret put JWT_SECRET --env staging
+#   wrangler secret put ADMIN_SECRET --env staging
+# =========================================================================
+[env.staging]
+name = "accthub-staging"
+
+[env.staging.vars]
+APP_ENV = "staging"
+SANDBOX_MODE = "false"
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "accthub-db-staging"
+database_id = "REPLACE_WITH_STAGING_D1_DATABASE_ID"
+migrations_dir = "migrations"
+
+# =========================================================================
+# 生产环境 (Production) — 由发布工作流上传已核验的构建
+# 严禁在仓库中明文写入生产 JWT_SECRET / ADMIN_SECRET / TURNSTILE_SECRET！
+# 必须使用 `wrangler secret put <NAME> --env production` 安全绑定。
+# =========================================================================
+[env.production]
+name = "accthub-production"
+
+[env.production.vars]
+APP_ENV = "production"
+# TURNSTILE_SITE_KEY = "0x4AAAAAAA..."
+# TURNSTILE_HOSTNAMES = "shop.yourdomain.com"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "accthub-db-prod"
+database_id = "REPLACE_WITH_PRODUCTION_D1_DATABASE_ID"
+migrations_dir = "migrations"

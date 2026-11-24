@@ -1,0 +1,23 @@
+name: 功能建议 (Feature Request)
+description: 为 AcctHub 提出新功能、新支付/上游适配或优化建议
+title: "[Feat]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: 需求概述
+      description: 你希望解决什么实际业务问题，或者希望增加什么能力？
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 建议实现方案（可选）
+      description: 如有具体的接口思路、数据库考量或交互构想，欢迎补充说明。
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: 参与意向
+      options:
+        - label: 我愿意在讨论确认后尝试提交 PR 实现此功能

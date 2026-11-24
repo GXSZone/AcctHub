@@ -1,0 +1,49 @@
+name: AcctHub CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: 静态检查、架构守卫、全量测试与生产构建
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: "true"
+      WRANGLER_SEND_METRICS: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+      - name: 代码规范与类型检查
+        run: |
+          pnpm run lint
+          pnpm run typecheck
+          pnpm run arch:check
+      - name: 校验数据库基线架构
+        run: node scripts/baseline-schema.mjs
+      - name: 运行单元、回归与真实 D1 集成测试
+        run: |
+          pnpm run test
+          pnpm exec vitest run --config vitest.d1.config.ts
+      - name: 生产包构建
+        run: pnpm run build
+      - name: 安装 Playwright Chromium
+        run: pnpm exec playwright install chromium
+      - name: 运行端到端测试
+        run: pnpm run test:e2e

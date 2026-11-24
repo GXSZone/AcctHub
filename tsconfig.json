@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "paths": {
+      "@shared/*": ["./shared/*"],
+      "@web/*": ["./src/*"],
+      "@worker/*": ["./worker/*"]
+    },
+    "types": ["@cloudflare/workers-types", "node", "vite/client"]
+  },
+  "include": [
+    "shared",
+    "src",
+    "worker",
+    "scripts",
+    "tests",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "playwright.config.ts",
+    "drizzle.config.ts"
+  ]
+}

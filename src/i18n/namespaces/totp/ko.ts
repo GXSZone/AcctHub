@@ -1,0 +1,57 @@
+import type { TotpDict } from './zh-CN';
+
+/** 2FA OTP 생성기 및 키 보관함 (한국어) */
+export const totpKo: TotpDict = {
+  detectedLinesToast: '{count}줄이 감지되어 일괄 가져오기를 엽니다',
+  clipboardEmptyToast: '클립보드가 비어 있습니다',
+  pasteHotkeyToast: 'Ctrl+V / ⌘V로 시크릿 키를 붙여넣으세요',
+  invalidSecretErr: '유효하지 않은 키 형식입니다',
+  minLengthSecretErr: '최소 8자리 이상의 유효한 Base32 키(A-Z, 2-7)를 입력하세요',
+  defaultAccountIssuer: 'AI 계정',
+  savedCloudToast: '계정 클라우드 키 보관함에 암호화 저장됨 (기기 간 동기화 가능)',
+  savedLocalToast: '이 브라우저에 저장했습니다. 로그인 후에도 로컬 항목은 여기에 남습니다.',
+  saveFailedErr: '저장 실패',
+  localVaultFullErr:
+    '이 브라우저에는 최대 {limit}개를 저장할 수 있습니다. 기존 항목을 삭제한 뒤 다시 시도하세요.',
+  batchLimitErr: '한 번에 최대 {limit}개를 가져올 수 있습니다. 나누어서 다시 시도하세요.',
+  batchEmptyErr: '유효한 Base32 키 또는 otpauth:// 링크가 감지되지 않았습니다',
+  batchCloudSuccessToast: '{count}개의 키를 클라우드로 암호화 가져오기 완료!',
+  batchLocalSuccessToast: '{count}개의 키를 로컬 브라우저로 가져오기 완료!',
+  focusPromptToast: '먼저 왼쪽에 키를 붙여넣은 뒤 저장을 눌러주세요',
+  importFallbackSingle: '가져온 계정',
+  importFallbackBatch: '일괄 가져오기',
+
+  clearTooltip: '지우기',
+  copySecretTooltip: '키 복사',
+  pasteClipboardTooltip: '클립보드에서 붙여넣기',
+  validSecretHint: '유효한 Base32 키 · {len}자',
+
+  zoomQrAria: '2FA QR 코드 확대',
+  qrAlt: '2FA QR 코드',
+  zoomQrTooltip: 'QR 코드 확대',
+  qrScanTitle: '스캔하여 인증 앱에 추가',
+  qrScanDesc: 'Google Authenticator 등 OTP 앱으로 스캔하여 추가할 수 있습니다.',
+  copiedUriBtn: '링크 복사됨',
+  copyUriBtn: '링크 복사',
+  downloadBtn: '다운로드',
+  issuerLabel: '서비스 이름',
+  issuerPh: '예: Google / Claude',
+  accountLabel: '계정',
+  accountPh: '예: name@gmail.com',
+
+  fallbackItemIssuer: '계정 키',
+  deleteTooltip: '삭제',
+
+  modalZoomAria: 'QR 코드 확대',
+  modalZoomTitle: '스캔하여 인증 앱에 추가',
+  modalZoomAlt: '확대된 2FA QR 코드',
+  modalBatchAria: '2FA 키 일괄 가져오기',
+  modalBatchTitle: '2FA 키 일괄 가져오기',
+  modalBatchDescPrefix: '한 줄에 하나씩 입력하며 다음 형식을 지원합니다: ',
+  modalBatchDescFormat1: '`otpauth://totp/...`',
+  modalBatchDescMid: ', ',
+  modalBatchDescFormat2: '`서비스명----이메일----Base32키`',
+  modalBatchDescSuffix: ' 또는 Base32 키 단독.',
+  cancelBtn: '취소',
+  modalBatchSubmitBtn: '분석 및 가져오기 시작',
+};

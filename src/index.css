@@ -1,0 +1,649 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   AcctHub · Warm Editorial Design System (Warm Parchment + Deep Charcoal)
+   ========================================================================== */
+
+:root {
+  /* Base color-scheme: always follow OS unless overridden via <meta name="color-scheme"> */
+  color-scheme: light dark;
+
+  &:has(> head > meta[name="color-scheme"][content="dark"]) {
+    color-scheme: dark;
+  }
+  &:has(> head > meta[name="color-scheme"][content="light"]) {
+    color-scheme: light;
+  }
+
+  /* Raw light & dark palette tokens */
+  --bg-canvas-light: #faf9f5;
+  --bg-canvas-dark: #191817;
+  --bg-surface-light: #ffffff;
+  --bg-surface-dark: #22211f;
+  --bg-subtle-light: #f2efe9;
+  --bg-subtle-dark: #2a2825;
+  --bg-hover-light: #eae6dc;
+  --bg-hover-dark: #33302c;
+  --border-light: #e6e2d8;
+  --border-dark: #33312d;
+  --border-strong-light: #d5cfc2;
+  --border-strong-dark: #48443e;
+
+  --ink-primary-light: #1a1918;
+  --ink-primary-dark: #f3f0e8;
+  --ink-secondary-light: #5b5953;
+  --ink-secondary-dark: #b6b1a6;
+  --ink-muted-light: #87837a;
+  --ink-muted-dark: #888379;
+
+  --accent-light: #d97757;
+  --accent-dark: #e28566;
+  --accent-hover-light: #c36242;
+  --accent-hover-dark: #ec9679;
+  --accent-soft-light: #f8ebe5;
+  --accent-soft-dark: #37241d;
+
+  --success-light: #2d6a57;
+  --success-dark: #58b899;
+  --success-soft-light: #e8f3ee;
+  --success-soft-dark: #1a2f28;
+
+  --warning-light: #a8641c;
+  --warning-dark: #e2a354;
+  --warning-soft-light: #fbf1e3;
+  --warning-soft-dark: #332717;
+
+  --danger-light: #b9382c;
+  --danger-dark: #e8756a;
+  --danger-soft-light: #fcebe9;
+  --danger-soft-dark: #3a1f1c;
+
+  /* Fallbacks for browsers without light-dark() */
+  --bg-canvas: var(--bg-canvas-light);
+  --bg-surface: var(--bg-surface-light);
+  --bg-subtle: var(--bg-subtle-light);
+  --bg-hover: var(--bg-hover-light);
+  --border-color: var(--border-light);
+  --border-strong: var(--border-strong-light);
+  --ink-primary: var(--ink-primary-light);
+  --ink-secondary: var(--ink-secondary-light);
+  --ink-muted: var(--ink-muted-light);
+  --accent: var(--accent-light);
+  --accent-hover: var(--accent-hover-light);
+  --accent-soft: var(--accent-soft-light);
+  --success: var(--success-light);
+  --success-soft: var(--success-soft-light);
+  --warning: var(--warning-light);
+  --warning-soft: var(--warning-soft-light);
+  --danger: var(--danger-light);
+  --danger-soft: var(--danger-soft-light);
+
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: #988f82;
+
+  @media (prefers-color-scheme: dark) {
+    --bg-canvas: var(--bg-canvas-dark);
+    --bg-surface: var(--bg-surface-dark);
+    --bg-subtle: var(--bg-subtle-dark);
+    --bg-hover: var(--bg-hover-dark);
+    --border-color: var(--border-dark);
+    --border-strong: var(--border-strong-dark);
+    --ink-primary: var(--ink-primary-dark);
+    --ink-secondary: var(--ink-secondary-dark);
+    --ink-muted: var(--ink-muted-dark);
+    --accent: var(--accent-dark);
+    --accent-hover: var(--accent-hover-dark);
+    --accent-soft: var(--accent-soft-dark);
+    --success: var(--success-dark);
+    --success-soft: var(--success-soft-dark);
+    --warning: var(--warning-dark);
+    --warning-soft: var(--warning-soft-dark);
+    --danger: var(--danger-dark);
+    --danger-soft: var(--danger-soft-dark);
+    --scrollbar-track: transparent;
+    --scrollbar-thumb: #6e685f;
+  }
+
+  @supports (color: light-dark(white, black)) {
+    --bg-canvas: light-dark(var(--bg-canvas-light), var(--bg-canvas-dark));
+    --bg-surface: light-dark(var(--bg-surface-light), var(--bg-surface-dark));
+    --bg-subtle: light-dark(var(--bg-subtle-light), var(--bg-subtle-dark));
+    --bg-hover: light-dark(var(--bg-hover-light), var(--bg-hover-dark));
+    --border-color: light-dark(var(--border-light), var(--border-dark));
+    --border-strong: light-dark(var(--border-strong-light), var(--border-strong-dark));
+    --ink-primary: light-dark(var(--ink-primary-light), var(--ink-primary-dark));
+    --ink-secondary: light-dark(var(--ink-secondary-light), var(--ink-secondary-dark));
+    --ink-muted: light-dark(var(--ink-muted-light), var(--ink-muted-dark));
+    --accent: light-dark(var(--accent-light), var(--accent-dark));
+    --accent-hover: light-dark(var(--accent-hover-light), var(--accent-hover-dark));
+    --accent-soft: light-dark(var(--accent-soft-light), var(--accent-soft-dark));
+    --success: light-dark(var(--success-light), var(--success-dark));
+    --success-soft: light-dark(var(--success-soft-light), var(--success-soft-dark));
+    --warning: light-dark(var(--warning-light), var(--warning-dark));
+    --warning-soft: light-dark(var(--warning-soft-light), var(--warning-soft-dark));
+    --danger: light-dark(var(--danger-light), var(--danger-dark));
+    --danger-soft: light-dark(var(--danger-soft-light), var(--danger-soft-dark));
+    --scrollbar-track: transparent;
+    --scrollbar-thumb: light-dark(#988f82, #6e685f);
+  }
+
+  --font-serif: "Newsreader", "Noto Serif SC", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  accent-color: var(--accent);
+}
+
+/* Editorial thin scrollbar styling across root & all scrollable containers */
+:root,
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+@supports not (scrollbar-color: auto) {
+  :root,
+  * {
+    scrollbar-width: auto;
+  }
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+}
+
+/* Custom editorial styling for any native range sliders */
+input[type="range"] {
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+html,
+body {
+  background-color: var(--bg-canvas);
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  min-height: 100%;
+}
+
+@layer components {
+  .font-editorial {
+    font-family: var(--font-serif);
+    letter-spacing: -0.015em;
+  }
+
+  .brand-wordmark {
+    display: inline-block;
+    line-height: 1;
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+  }
+
+  @supports not (text-box-trim: trim-both) {
+    .brand-wordmark {
+      transform: translateY(1.5px);
+    }
+  }
+
+  .font-mono-num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Subtle paper grain surface utility */
+  .paper-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    box-shadow:
+      0 1px 2px rgb(26 25 24 / 0.03),
+      0 4px 16px rgb(26 25 24 / 0.025);
+  }
+
+  .paper-card-hover {
+    transition:
+      border-color 180ms ease,
+      transform 180ms ease,
+      box-shadow 180ms ease,
+      background-color 180ms ease;
+  }
+
+  .paper-card-hover:hover {
+    border-color: var(--border-strong);
+    box-shadow: 0 4px 20px rgb(26 25 24 / 0.06);
+  }
+}
+
+/* ==========================================================================
+   Native <dialog> Top-Layer Styling & Smooth Entry/Exit Animations
+   ========================================================================== */
+
+dialog.acct-dialog {
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 1.25rem;
+  background-color: var(--bg-surface);
+  color: var(--ink-primary);
+  box-shadow: 0 24px 64px rgb(0 0 0 / 0.18);
+  max-width: min(92vw, 34rem);
+  width: 100%;
+  margin: auto;
+  opacity: 0;
+  transition-property: opacity, transform, display, overlay;
+  transition-duration: 0.24s;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  transition-behavior: allow-discrete;
+
+  @media (prefers-reduced-motion: no-preference) {
+    transform: translateY(10px) scale(0.97);
+  }
+}
+
+dialog.acct-dialog.acct-dialog-wide {
+  max-width: min(94vw, 44rem);
+}
+
+dialog.acct-dialog.acct-drawer {
+  margin: 0 0 0 auto;
+  height: 100dvh;
+  max-height: 100dvh;
+  max-width: min(94vw, 28rem);
+  border-radius: 1.25rem 0 0 1.25rem;
+
+  @media (prefers-reduced-motion: no-preference) {
+    transform: translateX(28px);
+  }
+}
+
+dialog.acct-dialog:modal {
+  overscroll-behavior: contain;
+}
+
+dialog.acct-dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background-color: rgb(25 24 23 / 0);
+  backdrop-filter: blur(0px);
+  transition-property: background-color, backdrop-filter, display, overlay;
+  transition-duration: 0.24s;
+  transition-timing-function: ease-out;
+  transition-behavior: allow-discrete;
+}
+
+dialog.acct-dialog[open]:where(:not([data-closing])) {
+  opacity: 1;
+
+  @starting-style {
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    transform: translateY(0) scale(1);
+
+    @starting-style {
+      transform: translateY(10px) scale(0.97);
+    }
+  }
+
+  &::backdrop {
+    background-color: rgb(25 24 23 / 0.44);
+    backdrop-filter: blur(4px);
+
+    @starting-style {
+      background-color: rgb(25 24 23 / 0);
+      backdrop-filter: blur(0px);
+    }
+  }
+}
+
+dialog.acct-dialog.acct-drawer[open]:where(:not([data-closing])) {
+  @media (prefers-reduced-motion: no-preference) {
+    transform: translateX(0);
+
+    @starting-style {
+      transform: translateX(28px);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog.acct-dialog,
+  dialog.acct-dialog::backdrop {
+    transition-duration: 0.08s;
+  }
+}
+
+/* ==========================================================================
+   Deferred Form Validation (:user-invalid / :user-valid + Fallback)
+   ========================================================================== */
+
+@layer components {
+  .acct-input {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-canvas);
+    color: var(--ink-primary);
+    padding: 0.625rem 0.875rem;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    transition:
+      border-color 150ms ease,
+      box-shadow 150ms ease,
+      background-color 150ms ease;
+  }
+
+  .acct-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
+  }
+
+  .acct-input:is(:user-invalid, .user-invalid-fallback) {
+    border-color: var(--danger);
+    background-color: var(--danger-soft);
+  }
+
+  .acct-input:is(:user-valid, .user-valid-fallback):not(:placeholder-shown) {
+    border-color: var(--success);
+  }
+
+  .acct-field-error {
+    display: none;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--danger);
+    font-size: 0.8rem;
+    margin-top: 0.35rem;
+  }
+
+  .acct-input:is(:user-invalid, .user-invalid-fallback) + .acct-field-error {
+    display: flex;
+  }
+
+  .acct-validation-popover {
+    animation: acct-validation-pop 160ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@keyframes acct-validation-pop {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .acct-validation-popover {
+    animation: none;
+  }
+}
+
+.visually-hidden:where(:not(:focus-within, :active)) {
+  position: absolute;
+  clip-path: inset(50%);
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  white-space: nowrap;
+}
+
+/* Theme toggle icon visibility driven purely by CSS + <meta> so it stays synced with OS */
+.theme-icon-to-dark {
+  display: inline-flex;
+}
+.theme-icon-to-light {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(:has(> head > meta[name="color-scheme"][content="light"])) .theme-icon-to-dark {
+    display: none;
+  }
+  :root:not(:has(> head > meta[name="color-scheme"][content="light"])) .theme-icon-to-light {
+    display: inline-flex;
+  }
+}
+
+:root:has(> head > meta[name="color-scheme"][content="dark"]) .theme-icon-to-dark {
+  display: none;
+}
+:root:has(> head > meta[name="color-scheme"][content="dark"]) .theme-icon-to-light {
+  display: inline-flex;
+}
+
+/* ==========================================================================
+   Editorial Rich-Text & Image Prose Styling
+   ========================================================================== */
+
+.acct-prose {
+  font-size: 0.92rem;
+  line-height: 1.78;
+  color: var(--ink-secondary);
+  word-break: break-word;
+}
+
+.acct-prose h2 {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--ink-primary);
+  margin: 1.35rem 0 0.65rem;
+  line-height: 1.35;
+}
+
+.acct-prose h3,
+.acct-prose h4 {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--ink-primary);
+  margin: 1.1rem 0 0.5rem;
+  line-height: 1.4;
+}
+
+.acct-prose > :first-child {
+  margin-top: 0;
+}
+
+.acct-prose p {
+  margin: 0.65rem 0;
+}
+
+.acct-prose strong,
+.acct-prose b {
+  color: var(--ink-primary);
+  font-weight: 600;
+}
+
+.acct-prose a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.acct-prose ul {
+  list-style: disc;
+  padding-left: 1.35rem;
+  margin: 0.75rem 0;
+}
+
+.acct-prose ol {
+  list-style: decimal;
+  padding-left: 1.35rem;
+  margin: 0.75rem 0;
+}
+
+.acct-prose li {
+  margin: 0.35rem 0;
+}
+
+.acct-prose li::marker {
+  color: var(--accent);
+}
+
+.acct-prose blockquote {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--accent);
+  background-color: var(--bg-canvas);
+  border-radius: 0 0.75rem 0.75rem 0;
+  color: var(--ink-primary);
+}
+
+.acct-prose pre {
+  margin: 0.9rem 0;
+  padding: 0.9rem 1.1rem;
+  border-radius: 0.85rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-canvas);
+  color: var(--ink-primary);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  overflow-x: auto;
+  line-height: 1.6;
+}
+
+.acct-prose code {
+  font-family: var(--font-mono);
+  font-size: 0.84em;
+  padding: 0.12rem 0.38rem;
+  border-radius: 0.4rem;
+  background-color: var(--bg-subtle);
+  color: var(--ink-primary);
+}
+
+.acct-prose pre code {
+  padding: 0;
+  background: transparent;
+}
+
+.acct-prose hr {
+  border: 0;
+  border-top: 1px solid var(--border-color);
+  margin: 1.25rem 0;
+}
+
+.acct-prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.9rem;
+  border: 1px solid var(--border-color);
+  margin: 0.75rem 0;
+  display: block;
+}
+
+.acct-prose figure.acct-figure {
+  margin: 1rem 0;
+}
+
+.acct-prose figure.acct-figure img {
+  margin: 0;
+}
+
+.acct-prose figcaption {
+  font-size: 0.76rem;
+  color: var(--ink-muted);
+  text-align: center;
+  margin-top: 0.45rem;
+}
+
+.acct-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.82rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.acct-prose th,
+.acct-prose td {
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--border-color);
+  text-align: left;
+}
+
+.acct-prose th {
+  background-color: var(--bg-canvas);
+  color: var(--ink-primary);
+  font-weight: 600;
+}
+
+.acct-prose .acct-callout {
+  margin: 1rem 0;
+  padding: 0.85rem 1.05rem;
+  border-radius: 0.9rem;
+  border: 1px solid var(--border-color);
+}
+
+.acct-prose .acct-callout-tip {
+  background-color: var(--success-soft);
+  border-color: color-mix(in srgb, var(--success) 35%, transparent);
+  color: var(--ink-primary);
+}
+
+.acct-prose .acct-callout-warn {
+  background-color: var(--warning-soft);
+  border-color: color-mix(in srgb, var(--warning) 35%, transparent);
+  color: var(--ink-primary);
+}
+
+.acct-editor-canvas:empty::before {
+  content: attr(data-placeholder);
+  color: var(--ink-muted);
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Multi-Notice Ticker & Smooth Marquee (Respects prefers-reduced-motion)
+   ========================================================================== */
+
+@keyframes acct-marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.acct-marquee-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  gap: 2.5rem;
+  animation: acct-marquee-scroll 28s linear infinite;
+}
+
+.acct-marquee-wrap:hover .acct-marquee-track,
+.acct-marquee-wrap:focus-within .acct-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .acct-marquee-track {
+    animation: none;
+  }
+}

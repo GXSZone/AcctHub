@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.vite/
+*.tsbuildinfo
+
+# Test artifacts
+test-results/
+playwright-report/
+
+# Cloudflare Wrangler & Local D1 / Miniflare state
+.wrangler/
+.dev.vars
+.dev.vars.*
+wrangler.local.toml
+
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+
+# Editor & OS files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini

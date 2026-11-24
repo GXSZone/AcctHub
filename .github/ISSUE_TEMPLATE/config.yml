@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 安全漏洞私密上报
+    url: https://github.com/OWNER/REPO/security/advisories/new
+    about: 如涉及资金安全、越权漏洞或密钥泄露，请勿公开发布 Issue，请点击此处提交私密安全报告
