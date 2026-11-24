@@ -1,6 +1,6 @@
 {
   "name": "accthub",
-  "version": "2.0.0",
+  "version": "0.1.0-alpha.1",
   "description": "基于 Cloudflare Workers + D1 的全栈多级代理自动发卡与数字商品交易系统",
   "license": "Apache-2.0",
   "private": true,
@@ -22,6 +22,7 @@
     "lint:fix": "biome check --write .",
     "arch:check": "node scripts/arch-guard.mjs",
     "check:commit-msg": "node scripts/check-commit-msg.mjs",
+    "package:release": "node scripts/package-release.mjs",
     "prepare": "node -e \"const fs=require('node:fs'),cp=require('node:child_process');if(fs.existsSync('.git'))cp.execFileSync('git',['config','core.hooksPath','.githooks'],{stdio:'ignore'})\"",
     "test": "vitest run",
     "test:watch": "vitest",

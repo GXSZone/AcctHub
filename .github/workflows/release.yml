@@ -1,0 +1,65 @@
+name: AcctHub 打包发版
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: 质量门禁验证、构建打包并发布 GitHub Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CI: "true"
+      WRANGLER_SEND_METRICS: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+      - name: 运行全量质量门禁与真实 D1 测试
+        run: |
+          pnpm run check
+          pnpm exec vitest run --config vitest.d1.config.ts
+      - name: 生成构建发行压缩包与 SHA-256 清单
+        run: node scripts/package-release.mjs --tag "$GITHUB_REF_NAME"
+      - name: 创建或更新 GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="$GITHUB_REF_NAME"
+          PRERELEASE_FLAG=""
+          if [[ "$TAG" == *-* ]]; then
+            PRERELEASE_FLAG="--prerelease"
+          fi
+          node -e '
+            const fs = require("node:fs");
+            const notes = [
+              "> [!WARNING]",
+              "> **早期初版开发预览声明**：本版本处于早期开发阶段，仍存在已知及潜在 Bug，**不建议直接用于生产环境**，建议用于技术研究与本地沙盒演示。",
+              "",
+              "## 发行产物说明",
+              "",
+              "- `accthub-*-dist.tar.gz` / `accthub-*-dist.zip`：包含预构建的 Cloudflare Worker SSR 包（`dist/accthub`）、前端静态资产（`dist/client`）、D1 官方迁移脚本（`migrations/`）与核心部署脚本。",
+              "- `SHA256SUMS.txt`：压缩包完整 SHA-256 校验值清单。",
+              "",
+              "详见 `CHANGELOG.md` 与 `docs/deployment.md`。"
+            ].join("\n");
+            fs.writeFileSync("/tmp/release-notes.md", notes + "\n", "utf8");
+          '
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" release/*.tar.gz release/*.zip release/SHA256SUMS.txt --clobber
+          else
+            gh release create "$TAG" release/*.tar.gz release/*.zip release/SHA256SUMS.txt \
+              --title "AcctHub $TAG" \
+              --notes-file /tmp/release-notes.md \
+              $PRERELEASE_FLAG
+          fi

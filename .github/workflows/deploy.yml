@@ -1,9 +1,6 @@
 name: AcctHub 部署
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
   workflow_dispatch:
     inputs:
       environment:
