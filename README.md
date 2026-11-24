@@ -16,6 +16,17 @@
 
 ---
 
+## 在线演示（Live Demo）
+
+- **演示地址**：<https://accthub-demo.gxszone.workers.dev>（部署于 Cloudflare Workers + D1）
+- **体验账号**：
+  - **主站总控管理员**：`admin@accthub.dev` / `admin123456`（访问 `/admin`）
+  - **认证代理店主**：`demo@accthub.dev` / `demo123456`（访问 `/agent`）
+  - **普通会员体验**：支持任意新邮箱直接注册体验，也可直接以游客身份下单并通过沙盒收银台模拟支付
+- **演示说明**：演示站已开启安全护盾（限制修改内置账号密码、管理员 2FA 锁死、全局熔断及外发邮件/Webhook 配置），并于**每日北京时间 `03:00` 自动清空并恢复原始演示数据**。
+
+---
+
 ## 核心特性概览
 
 - **边缘原生全栈架构**：前端采用 React 19 + Vite 6 + TanStack Query v5，后端基于 Hono 4 + Drizzle ORM + Zod 4 部署于 Cloudflare Workers 与 D1。
