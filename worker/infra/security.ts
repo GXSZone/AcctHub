@@ -87,15 +87,27 @@ function resolveRateRule(method: string, path: string): RateRule | null {
   if (path.startsWith('/api/storefront/')) {
     return { name: 'public_read', limit: 120, windowMs: 60_000 };
   }
-  return { name: 'api_default', limit: 90, windowMs: 60_000 };
+  if (path.startsWith('/api/admin/')) {
+    return { name: 'admin_api', limit: 300, windowMs: 60_000, byApiKey: true };
+  }
+  if (
+    method === 'GET' &&
+    (path === '/api/auth/me' || path.startsWith('/api/account/') || path.startsWith('/api/agent/'))
+  ) {
+    return { name: 'portal_read', limit: 240, windowMs: 60_000, byApiKey: true };
+  }
+  return { name: 'api_default', limit: 120, windowMs: 60_000 };
 }
 
 function extractKeyFingerprint(req: Request): string {
   const auth = req.headers.get('Authorization') || '';
-  if (!auth.startsWith('Bearer ')) return 'anon';
-  const raw = auth.slice(7).trim();
-  if (!raw) return 'anon';
-  return raw.length > 12 ? `${raw.slice(0, 6)}..${raw.slice(-4)}` : raw.slice(0, 6);
+  if (auth.startsWith('Bearer ')) {
+    const raw = auth.slice(7).trim();
+    if (raw) return raw.length > 12 ? `${raw.slice(0, 6)}..${raw.slice(-4)}` : raw.slice(0, 6);
+  }
+  const apiKey = (req.headers.get('X-API-Key') || '').trim();
+  if (apiKey) return apiKey.length > 12 ? `${apiKey.slice(0, 6)}..${apiKey.slice(-4)}` : apiKey.slice(0, 6);
+  return 'anon';
 }
 
 /** 创建全站分层滑动窗口限流中间件 */
