@@ -69,3 +69,24 @@ binding = "DB"
 database_name = "accthub-db-prod"
 database_id = "REPLACE_WITH_PRODUCTION_D1_DATABASE_ID"
 migrations_dir = "migrations"
+
+# =========================================================================
+# 公开演示环境 (Demo) — 专为免费 Cloudflare Workers + D1 在线预览配置
+# 自动注入沙盒演示商品、多级分站与模拟支付，并启用 PUBLIC_DEMO_MODE 防破坏护盾
+# =========================================================================
+[env.demo]
+name = "accthub-demo"
+
+[env.demo.triggers]
+crons = ["*/5 * * * *", "0 19 * * *"]
+
+[env.demo.vars]
+APP_ENV = "development"
+SANDBOX_MODE = "true"
+PUBLIC_DEMO_MODE = "true"
+
+[[env.demo.d1_databases]]
+binding = "DB"
+database_name = "accthub-demo"
+database_id = "7520c596-1223-4e0a-ab40-1f5ae4d14fa7"
+migrations_dir = "migrations"

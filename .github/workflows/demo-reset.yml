@@ -1,0 +1,66 @@
+name: AcctHub 公开演示库重置
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reset_demo:
+    name: 手动重置公开演示 D1 数据并预热演示站
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CI: "true"
+      WRANGLER_SEND_METRICS: "false"
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - name: 校验 Cloudflare 凭据
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::请先在 GitHub 仓库 Secrets 中配置 CLOUDFLARE_API_TOKEN 与 CLOUDFLARE_ACCOUNT_ID。"
+            exit 1
+          fi
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+      - name: 清空公开演示业务表并复位自增序列
+        run: |
+          node -e '
+            const fs = require("node:fs");
+            const sqlText = fs.readFileSync("migrations/0000_accthub_baseline.sql", "utf8");
+            const tables = [...sqlText.matchAll(/CREATE TABLE `([^`]+)`/g)].map(m => m[1]);
+            const ordered = [
+              "ticket_messages", "support_tickets", "refund_commission_recoveries", "order_refunds",
+              "group_buy_members", "group_buy_sessions", "commission_ledger", "affiliate_ledgers",
+              "promo_transactions", "wallet_transactions", "wallet_events", "payment_intents",
+              "upstream_orders", "upstream_sync_logs", "product_upstream_bindings", "upstream_items",
+              "product_cards", "restock_subscriptions", "orders", "recharge_records", "recharge_cdks",
+              "coupons", "agent_product_overrides", "agent_product_prices", "agent_withdrawals",
+              "tenant_domains", "tenant_payment_plugins", "tenant_settings", "tenant_sso_tickets",
+              "user_sessions", "user_login_logs", "user_oauth_identities", "oauth_auth_states",
+              "oauth_exchange_tickets", "password_reset_codes", "user_totp_vault",
+              "email_delivery_logs", "mail_outbox", "risk_events", "ip_blacklist",
+              "outbound_webhooks", "admin_audit_logs", "announcements", "help_articles",
+              "payment_plugins", "site_mail_configs", "refund_policies", "upstream_sources",
+              "products", "categories", "category_groups", "agents", "agent_tiers", "users", "site_settings"
+            ].filter(t => tables.includes(t));
+            const stmts = ordered.map(t => `DELETE FROM "${t}";`);
+            stmts.push("DELETE FROM sqlite_sequence;");
+            fs.writeFileSync("/tmp/reset-demo.sql", stmts.join("\n"), "utf8");
+          '
+          pnpm exec wrangler d1 execute DB --remote --env demo --file /tmp/reset-demo.sql --yes
+      - name: 预热公开演示站恢复原始演示数据
+        if: ${{ vars.PUBLIC_DEMO_URL != '' }}
+        env:
+          PUBLIC_DEMO_URL: ${{ vars.PUBLIC_DEMO_URL }}
+        run: |
+          curl -fsS "$PUBLIC_DEMO_URL/api/storefront/products?category=all" >/dev/null
+          echo "✅ 公开演示站已完成清空重置并恢复原始演示数据。"

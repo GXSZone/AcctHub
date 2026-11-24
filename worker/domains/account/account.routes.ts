@@ -15,6 +15,7 @@ import {
 } from '@shared/index';
 import { Hono } from 'hono';
 import { type AppBindings, isSandboxEnabled } from '../../env';
+import { assertDemoAccountMutable } from '../../middleware/demo-guard.middleware';
 import { parseJsonBody, parseQueryParams, parseRouteParams } from '../../middleware/validate.middleware';
 import { listMemberOrdersPage } from '../orders/orders.lookup.service';
 import {
@@ -142,6 +143,7 @@ accountRoutes.put('/profile', async (c) => {
 
 accountRoutes.put('/password', async (c) => {
   const user = await requireAuthUser(c.req.raw, c.env, c.get('tenant'));
+  assertDemoAccountMutable(c.env, user.email);
   const input = await parseJsonBody(c, changePasswordInputSchema);
   return c.json(await changeMemberPassword(c.env, user, input));
 });

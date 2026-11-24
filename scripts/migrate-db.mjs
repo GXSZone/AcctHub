@@ -54,10 +54,10 @@ async function main() {
     throw new Error('请选择 --local 或 --remote。仅本地迁移支持 --persist-to。');
   }
   if (values.remote && !values.env) {
-    throw new Error('远端迁移必须显式指定 --env staging 或 --env production。');
+    throw new Error('远端迁移必须显式指定 --env demo、--env staging 或 --env production。');
   }
-  if (values.env && !['staging', 'production'].includes(values.env)) {
-    throw new Error('支持的远端环境为 staging 和 production');
+  if (values.env && !['staging', 'production', 'demo'].includes(values.env)) {
+    throw new Error('支持的远端环境为 demo、staging 和 production');
   }
   const root = process.cwd();
   const files = readVerifiedMigrations(root);

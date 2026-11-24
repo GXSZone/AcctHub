@@ -19,6 +19,7 @@ export const ERROR_CODES = {
   BELOW_COST_MARGIN: 'BELOW_COST_MARGIN',
   TIER_DISCOUNT_CAUSES_LOSS: 'TIER_DISCOUNT_CAUSES_LOSS',
   TOTP_REQUIRED: 'TOTP_REQUIRED',
+  DEMO_MODE_READONLY: 'DEMO_MODE_READONLY',
 } as const;
 
 export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
@@ -41,6 +42,7 @@ export const ERROR_HTTP_STATUS: Record<ErrorCode, number> = {
   BELOW_COST_MARGIN: 400,
   TIER_DISCOUNT_CAUSES_LOSS: 400,
   TOTP_REQUIRED: 401,
+  DEMO_MODE_READONLY: 403,
 };
 
 export interface ErrorI18nEntry {
@@ -188,6 +190,14 @@ export const ERROR_CODE_I18N: Record<ErrorCode, ErrorI18nEntry> = {
     en: 'Two-factor authentication is enabled. Please enter your 6-digit authenticator code.',
     ja: '二段階認証が有効です。6 桁の認証コードを入力してください。',
     ko: '2단계 인증이 활성화되어 있습니다. 6자리 OTP 코드를 입력해 주세요.',
+  },
+  DEMO_MODE_READONLY: {
+    zh: '公开演示环境已限制该高危修改，请注册独立测试账号或本地部署体验完整控制权限',
+    'zh-CN': '公开演示环境已限制该高危修改，请注册独立测试账号或本地部署体验完整控制权限',
+    'zh-TW': '公開演示環境已限制此高風險修改，請註冊獨立測試帳號或本地部署體驗完整控制權限',
+    en: 'This high-risk change is restricted in the public demo. Register your own test account or self-host for full control.',
+    ja: '公開デモ環境ではこの高リスク操作が制限されています。ご自身のテストアカウントを登録するか、セルフホストでお試しください。',
+    ko: '공개 데모 환경에서는 해당 고위험 변경이 제한됩니다. 별도의 테스트 계정을 등록하거나 셀프 호스팅으로 전체 권한을 이용해 보세요.',
   },
 };
 

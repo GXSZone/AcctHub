@@ -146,9 +146,10 @@ async function ensureAgent(
 
 export async function seedAgentsAndMembersTopology(
   db: AppDatabase,
-  env: Env
+  env: Env,
+  precomputedDemoHash?: string
 ): Promise<SeededTopologyContext> {
-  const demoHash = await hashPassword('demo123456');
+  const demoHash = precomputedDemoHash || (await hashPassword('demo123456'));
 
   await db
     .update(agentTiers)

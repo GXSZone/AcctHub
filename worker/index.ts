@@ -1,6 +1,7 @@
 import { resolveRequestLocale, translateApiErrorMessage } from '@shared/constants/error-codes';
 import { Hono } from 'hono';
 import { ensureDemoSeeded } from './db/seeds';
+import { maybeRunDailyDemoReset } from './db/seeds/reset';
 import { accountRoutes } from './domains/account/account.routes';
 import { recoverPendingAffiliateRewards } from './domains/account/affiliate.service';
 import { adminRoutes } from './domains/admin/admin.routes';
@@ -30,7 +31,7 @@ import { runScheduledUpstreamOrderPoll } from './domains/upstream/upstream.fulfi
 import { upstreamAdminRoutes, upstreamWebhookRoutes } from './domains/upstream/upstream.routes';
 import { runScheduledUpstreamSync } from './domains/upstream/upstream.sync.service';
 import { webhooksAdminRoutes, webhooksInboundRoutes } from './domains/webhooks/webhooks.routes';
-import { type AppBindings, type Env, isSandboxEnabled } from './env';
+import { type AppBindings, type Env, isPublicDemoMode, isSandboxEnabled } from './env';
 import { rekeyStoredCredentials } from './infra/credential-rekey';
 import { createDb } from './infra/db';
 import { drainMailOutbox } from './infra/mail.outbox';
@@ -38,6 +39,7 @@ import { bumpEdgeCacheVersion, createRateLimitMiddleware } from './infra/securit
 import { buildTenantSeoPayload, rewriteHtmlWithTenantSeo } from './infra/seo';
 import { createAdminAuditMiddleware } from './middleware/admin-audit.middleware';
 import { createCorsMiddleware } from './middleware/cors.middleware';
+import { createPublicDemoGuardMiddleware } from './middleware/demo-guard.middleware';
 import { handleGlobalError } from './middleware/error.middleware';
 
 export const app = new Hono<AppBindings>();
@@ -126,6 +128,7 @@ app.use('*', async (c, next) => {
 
 app.use('/api/*', createCorsMiddleware());
 app.use('/api/*', createRateLimitMiddleware());
+app.use('/api/*', createPublicDemoGuardMiddleware());
 
 app.get('/api/health', (c) =>
   c.json({
@@ -200,20 +203,20 @@ app.onError(handleGlobalError);
 export default {
   fetch: app.fetch,
   async scheduled(_controller: ScheduledController, env: Env, ctx: ExecutionContext) {
-    ctx.waitUntil(drainMailOutbox(env));
-    ctx.waitUntil(recoverPendingAffiliateRewards(env));
-    ctx.waitUntil(recoverImmediateOrderAborts(createDb(env.DB)));
-    ctx.waitUntil(recoverExpiredBalanceOrders(env));
-    ctx.waitUntil(runScheduledRefundReconciliation(env));
-    if (env.DATA_REKEY_ENABLED === 'true') {
-      ctx.waitUntil(
-        rekeyStoredCredentials(env).then((counts) => {
-          console.info('数据密钥迁移', counts);
-        })
-      );
-    }
     ctx.waitUntil(
       (async () => {
+        if (typeof __ACCTHUB_SANDBOX__ !== 'undefined' && __ACCTHUB_SANDBOX__ && isPublicDemoMode(env)) {
+          await maybeRunDailyDemoReset(env);
+        }
+        await drainMailOutbox(env);
+        await recoverPendingAffiliateRewards(env);
+        await recoverImmediateOrderAborts(createDb(env.DB));
+        await recoverExpiredBalanceOrders(env);
+        await runScheduledRefundReconciliation(env);
+        if (env.DATA_REKEY_ENABLED === 'true') {
+          const counts = await rekeyStoredCredentials(env);
+          console.info('数据密钥迁移', counts);
+        }
         if (typeof __ACCTHUB_SANDBOX__ !== 'undefined' && __ACCTHUB_SANDBOX__ && isSandboxEnabled(env)) {
           await ensureDemoSeeded(env);
         }

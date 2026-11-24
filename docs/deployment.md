@@ -110,3 +110,14 @@ node scripts/release-health.mjs --env production --url https://your-domain.examp
   - `mail_outbox` 邮件重试投递；
   - 未完成支付意图/卡密/拼团超时自动回收与退款；
   - 已配置的上游订单状态轮询与库存同步。
+
+---
+
+## 7. 公开演示环境（`demo`）与 GitHub 自动部署
+
+如果希望将 AcctHub 部署为挂在 GitHub 主页上的免费公开演示站（Cloudflare Workers Free + D1 Free），`wrangler.toml` 已预置 `[env.demo]` 与 `PUBLIC_DEMO_MODE = "true"` 护盾：
+
+- **沙盒全功能体验**：以 `CLOUDFLARE_ENV=demo pnpm exec vite build --mode sandbox` 构建，自动注入演示商品、多级分站与模拟收银台支付。
+- **公开防破坏隔离**：自动拦截预设演示账号改密、管理员 2FA 锁死、全局停服熔断、IP 黑名单及外部邮件/Webhook/上游 URL SSRF 写操作；访客仍可自行注册新账号测试完整下单与改密流程。
+- **每日自动重置恢复**：`[env.demo.triggers]` 已配置每日 UTC 19:00（北京时间凌晨 03:00）定时任务，跨天时自动按外键顺序清空全部演示业务表（保留迁移账本）、复位自增 ID 序列并重新灌入原始全功能演示数据集，确保长期演示环境干净一致。
+- **GitHub 自动部署流水线**：在 GitHub 仓库 `Settings → Secrets and variables → Actions` 配置 `CLOUDFLARE_API_TOKEN` 与 `CLOUDFLARE_ACCOUNT_ID` 后，每次推送 `main` 或发布 `v*.*.*` 标签都会通过 `.github/workflows/deploy.yml` 自动完成远端 D1 迁移与 Cloudflare Workers 部署。

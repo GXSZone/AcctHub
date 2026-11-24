@@ -1,31 +1,58 @@
 name: AcctHub 部署
 
 on:
+  push:
+    branches: ["main"]
+    tags:
+      - "v*.*.*"
   workflow_dispatch:
     inputs:
       environment:
         description: 目标部署环境
         type: choice
-        options: [staging, production]
-        default: staging
+        options: [demo, staging, production]
+        default: demo
         required: true
 
 permissions:
   contents: read
 
 jobs:
+  check_credentials:
+    name: 检查 Cloudflare 部署凭据
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+      target: ${{ steps.check.outputs.target }}
+    steps:
+      - id: check
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          INPUT_ENV: ${{ inputs.environment }}
+        run: |
+          TARGET="${INPUT_ENV:-demo}"
+          echo "target=$TARGET" >> "$GITHUB_OUTPUT"
+          if [ -n "$CF_TOKEN" ] && [ -n "$CF_ACCOUNT" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::尚未配置 CLOUDFLARE_API_TOKEN 或 CLOUDFLARE_ACCOUNT_ID Secrets，本次自动跳过 Cloudflare 部署。配置后每次推送 main 或发版 Tag 将自动部署到 $TARGET 环境。"
+          fi
+
   deploy:
     name: 构建并部署至 Cloudflare Workers + D1
+    needs: check_credentials
+    if: needs.check_credentials.outputs.ready == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment: ${{ inputs.environment || 'production' }}
     concurrency:
-      group: deploy-${{ inputs.environment || 'production' }}
+      group: deploy-${{ needs.check_credentials.outputs.target }}
       cancel-in-progress: false
     env:
       CI: "true"
       WRANGLER_SEND_METRICS: "false"
-      TARGET_ENVIRONMENT: ${{ inputs.environment || 'production' }}
+      TARGET_ENVIRONMENT: ${{ needs.check_credentials.outputs.target }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
@@ -37,21 +64,29 @@ jobs:
           cache: pnpm
       - name: 安装依赖
         run: pnpm install --frozen-lockfile
-      - name: 运行全量质量门禁
+      - name: 运行静态检查、架构守卫与单元测试
         run: |
-          pnpm run check
+          pnpm run lint
+          pnpm run typecheck
+          pnpm run arch:check
+          pnpm run test
           pnpm exec vitest run --config vitest.d1.config.ts
-      - name: 上线前配置与 Secret 自检
-        run: |
-          test -n "$CLOUDFLARE_API_TOKEN"
-          test -n "$CLOUDFLARE_ACCOUNT_ID"
-          pnpm run deploy:preflight -- --env "$TARGET_ENVIRONMENT" --check-remote-secrets
+      - name: 上线前配置与 Secret 自检（staging / production）
+        if: needs.check_credentials.outputs.target != 'demo'
+        run: pnpm run deploy:preflight -- --env "$TARGET_ENVIRONMENT" --check-remote-secrets
       - name: 应用并核对远端 D1 迁移
         run: node scripts/migrate-db.mjs --remote --env "$TARGET_ENVIRONMENT"
+      - name: 构建对应环境 Worker 与静态资产
+        run: |
+          if [ "$TARGET_ENVIRONMENT" = "demo" ]; then
+            CLOUDFLARE_ENV=demo pnpm exec vite build --mode sandbox
+          else
+            CLOUDFLARE_ENV="$TARGET_ENVIRONMENT" pnpm run build
+          fi
       - name: 部署 Cloudflare Worker 与静态资产
-        run: pnpm exec wrangler deploy --env "$TARGET_ENVIRONMENT"
+        run: pnpm exec wrangler deploy
       - name: 线上健康与沙盒隔离探活
-        if: ${{ vars.PUBLIC_SITE_URL != '' }}
+        if: ${{ needs.check_credentials.outputs.target != 'demo' && vars.PUBLIC_SITE_URL != '' }}
         env:
           PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
         run: node scripts/release-health.mjs --env "$TARGET_ENVIRONMENT" --url "$PUBLIC_SITE_URL"

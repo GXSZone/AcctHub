@@ -4,7 +4,7 @@
  */
 
 import { and, eq, sql } from 'drizzle-orm';
-import { type Env, isDevOrTestEnv } from '../../env';
+import { type Env, isDevOrTestEnv, isPublicDemoMode } from '../../env';
 import { hashPassword } from '../../infra/auth-crypto';
 import { INVENTORY_CREDENTIAL_SCOPE } from '../../infra/credential-storage';
 import { encryptSecret, sha256Hex } from '../../infra/crypto';
@@ -49,6 +49,15 @@ const FULL_DEMO_PACK_VERSION = 'v2_full_closed_loop';
 
 const seededDbs = new WeakSet<D1Database>();
 const seedingPromises = new WeakMap<D1Database, Promise<void>>();
+
+/** 清除指定数据库实例的种子缓存标记（用于演示库每日重置后重新灌入） */
+export function clearDemoSeedCache(db: D1Database): void {
+  seededDbs.delete(db);
+}
+
+export function getBeijingDayKey(now = new Date()): string {
+  return new Date(now.getTime() + 8 * 3600_000).toISOString().slice(0, 10);
+}
 
 function chunkRows<T>(rows: readonly T[], size: number): T[][] {
   const out: T[][] = [];
@@ -444,11 +453,23 @@ async function runDemoSeedOnce(env: Env): Promise<void> {
   }
 
   // 9. 全功能闭环增强模拟数据（多级代理拓扑 / 高转化商品形态 / 平账交易流水 / 上游工单风控审计）
-  await ensureFullDemoEcosystemSeeded(db, env);
+  await ensureFullDemoEcosystemSeeded(db, env, demoHash);
+
+  if (isPublicDemoMode(env)) {
+    const todayKey = getBeijingDayKey();
+    await db
+      .insert(siteSettings)
+      .values({ key: 'demo_last_reset_date', value: todayKey })
+      .onConflictDoNothing();
+  }
 }
 
 /** 幂等灌入全功能闭环模拟数据（按哨兵键仅执行一次，绝不在生产或单元测试环境触发） */
-async function ensureFullDemoEcosystemSeeded(db: ReturnType<typeof createDb>, env: Env): Promise<void> {
+async function ensureFullDemoEcosystemSeeded(
+  db: ReturnType<typeof createDb>,
+  env: Env,
+  precomputedDemoHash?: string
+): Promise<void> {
   const [packRow] = await db
     .select({ value: siteSettings.value })
     .from(siteSettings)
@@ -456,7 +477,7 @@ async function ensureFullDemoEcosystemSeeded(db: ReturnType<typeof createDb>, en
     .limit(1);
   if (packRow?.value === FULL_DEMO_PACK_VERSION) return;
 
-  const topology = await seedAgentsAndMembersTopology(db, env);
+  const topology = await seedAgentsAndMembersTopology(db, env, precomputedDemoHash);
   await seedCommerceModesShowcase(db, env, topology);
   const orderRefs = await seedTransactionsAndFinanceLedger(db, env, topology);
   await seedOpsAndRiskEcosystem(db, env, topology, orderRefs);

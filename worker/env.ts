@@ -10,6 +10,7 @@ export interface Env {
   ACCTHUB_RELEASE_SHA?: string;
   ACCTHUB_RELEASE_DIGEST?: string;
   SANDBOX_MODE?: string;
+  PUBLIC_DEMO_MODE?: string;
   ALLOWED_ORIGINS?: string;
   ADMIN_SECRET?: string;
   JWT_SECRET?: string;
@@ -89,6 +90,10 @@ export function isProductionEnv(env: Env): boolean {
 
 export function isSandboxEnabled(env: Pick<Env, 'APP_ENV' | 'SANDBOX_MODE'>): boolean {
   return isDevOrTestEnv(env) && env.SANDBOX_MODE?.trim().toLowerCase() !== 'false';
+}
+
+export function isPublicDemoMode(env: Pick<Env, 'APP_ENV' | 'SANDBOX_MODE' | 'PUBLIC_DEMO_MODE'>): boolean {
+  return isSandboxEnabled(env) && env.PUBLIC_DEMO_MODE?.trim().toLowerCase() === 'true';
 }
 
 export function getRegistrationWelcomeCredit(env: Env): number {
