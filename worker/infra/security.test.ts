@@ -53,7 +53,12 @@ describe('分层滑动窗口限流中间件', () => {
     }
     const blocked = await app.request('http://127.0.0.1/api/auth/login', { method: 'POST' }, env);
     expect(blocked.status).toBe(429);
+    expect(blocked.headers.get('X-RateLimit-Policy')).toBe('auth_login;w=60');
     expect(await blocked.json()).toMatchObject({ code: 'RATE_LIMITED' });
+
+    const registerRes = await app.request('http://127.0.0.1/api/auth/register', { method: 'POST' }, env);
+    expect(registerRes.status).toBe(200);
+    expect(registerRes.headers.get('X-RateLimit-Policy')).toBe('auth_register;w=60');
 
     for (let i = 0; i < 60; i++) {
       const ok = await app.request(

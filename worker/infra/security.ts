@@ -58,8 +58,11 @@ export function getClientIp(req: Request): string {
 function resolveRateRule(method: string, path: string): RateRule | null {
   if (method === 'OPTIONS' || path === '/api/health') return null;
 
-  if (method === 'POST' && (path === '/api/auth/login' || path === '/api/auth/register')) {
-    return { name: 'auth', limit: 12, windowMs: 60_000 };
+  if (method === 'POST' && path === '/api/auth/login') {
+    return { name: 'auth_login', limit: 12, windowMs: 60_000 };
+  }
+  if (method === 'POST' && path === '/api/auth/register') {
+    return { name: 'auth_register', limit: 12, windowMs: 60_000 };
   }
   if (method === 'POST' && (path === '/api/orders' || path === '/api/v1/reseller/order')) {
     return {
@@ -85,7 +88,7 @@ function resolveRateRule(method: string, path: string): RateRule | null {
     return { name: 'reseller_read', limit: 60, windowMs: 60_000, byApiKey: true };
   }
   if (path.startsWith('/api/storefront/')) {
-    return { name: 'public_read', limit: 120, windowMs: 60_000 };
+    return { name: 'public_read', limit: 180, windowMs: 60_000 };
   }
   if (path.startsWith('/api/admin/')) {
     return { name: 'admin_api', limit: 300, windowMs: 60_000, byApiKey: true };
